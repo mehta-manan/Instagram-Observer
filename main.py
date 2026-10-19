@@ -84,6 +84,7 @@ def instagram_webhook(
             india_timestamp_str = india_time.strftime("%Y-%m-%d %H:%M:%S")
              
             attachment = Attachment(
+                mid=messaging[0]["message"]["mid"],
                 timestamp=india_timestamp_str,
                 sender_id=messaging[0]["sender"]["id"],
                 type=attachment["type"],
