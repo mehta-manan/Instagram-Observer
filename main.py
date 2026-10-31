@@ -17,11 +17,11 @@ logging.getLogger("pymongo").setLevel(logging.WARNING)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, status, Query
+from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.responses import PlainTextResponse
 
 from constants import default_response, SUPPORTED_ATTACHMENT_TYPES
-from schemas import InstagramWebhookRequestPayload
+from schemas import InstagramWebhookRequestPayload, GetAttachmentResponseBody, GetAttachmentsResponseBody
 from models import Attachment
 
 from db import database
@@ -106,3 +106,38 @@ def instagram_webhook(
             logger.warning(f"Unsupported attachment type received: {attachment_type}")
         
     return default_response
+
+@app.get("/api/v1/attachments", response_model=GetAttachmentsResponseBody, tags=["attachments"])
+def get_attachments(
+    page_num: int = Query(1, ge=1), 
+    page_size: int = Query(5, ge=1),
+):
+    skip = (page_num - 1) * page_size
+    limit = page_size
+
+    try:
+        attachments_cursor = (
+            attachment_collection
+            .find({"type": {"$ne": "ephemeral"}})
+            .sort("timestamp", -1)
+            .skip(skip)
+            .limit(limit)
+        )
+        
+        attachments_list = list(attachments_cursor)
+
+        total_attachments = attachment_collection.count_documents({})
+
+        response_body = GetAttachmentsResponseBody(
+            attachments=[GetAttachmentResponseBody(**attachment) for attachment in attachments_list],
+            total=total_attachments
+        )
+
+        return response_body
+
+    except Exception as e:
+        logger.exception(f"Failed to retrieve attachments from database: {e}")
+        return HTTPException(
+            detail="Failed to retrieve attachments.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
