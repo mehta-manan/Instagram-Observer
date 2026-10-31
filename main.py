@@ -115,10 +115,11 @@ def get_attachments(
     skip = (page_num - 1) * page_size
     limit = page_size
 
+    filter_query = {"type": {"$ne": "ephemeral"}}
     try:
         attachments_cursor = (
             attachment_collection
-            .find({"type": {"$ne": "ephemeral"}})
+            .find(filter_query)
             .sort("timestamp", -1)
             .skip(skip)
             .limit(limit)
@@ -126,7 +127,7 @@ def get_attachments(
         
         attachments_list = list(attachments_cursor)
 
-        total_attachments = attachment_collection.count_documents({})
+        total_attachments = attachment_collection.count_documents(filter_query)
 
         response_body = GetAttachmentsResponseBody(
             attachments=[GetAttachmentResponseBody(**attachment) for attachment in attachments_list],
