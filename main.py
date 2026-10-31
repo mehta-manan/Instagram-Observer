@@ -111,11 +111,14 @@ def instagram_webhook(
 def get_attachments(
     page_num: int = Query(1, ge=1), 
     page_size: int = Query(5, ge=1),
+    # required parameter to filter attachments by type (...)
+    type: str = Query(..., description="Filter attachments by type (e.g., 'image', 'video', 'audio')")
 ):
     skip = (page_num - 1) * page_size
     limit = page_size
 
-    filter_query = {"type": {"$ne": "ephemeral"}}
+    filter_query = {"type": type}
+    
     try:
         attachments_cursor = (
             attachment_collection
