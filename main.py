@@ -218,7 +218,6 @@ def download_attachment(
 
     try:
         attachment_data, headers, _ = fetch(url)
-        attachment_data = json.loads(attachment_data.decode("utf-8"))
         mime_type = headers.get("Content-Type", "application/octet-stream")
         extension = mime_type.split("/")[-1] or "bin"
         
