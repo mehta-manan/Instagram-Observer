@@ -70,7 +70,7 @@ def instagram_webhook(
     logger.info(f"Message received from sender ID: {sender_id}")
     
     # Check if the sender is a known user in the database
-    user = user_collection.find_one({"sender_id": sender_id})
+    user = user_collection.find_one({"id": sender_id})
     
     if user:
         logger.info(f"Known user detected. Sender ID: {sender_id}. Ignoring.")
