@@ -107,7 +107,7 @@ def instagram_webhook(
             attachment = Attachment(
                 mid=messaging[0]["message"]["mid"],
                 timestamp=india_timestamp_str,
-                sender_id=messaging[0]["sender"]["id"],
+                sender_id=sender_id,
                 type=attachment["type"],
                 url=attachment.get("payload", {}).get("url"),
             )
