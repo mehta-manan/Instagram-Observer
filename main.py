@@ -142,7 +142,7 @@ def get_users():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
         
-@app.get("/api/v1/instgram-user", response_model=GetInstagramUserResponseBody, tags=["instagram-users"])
+@app.get("/api/v1/instagram-user", response_model=GetInstagramUserResponseBody, tags=["instagram-users"])
 def get_instagram_user(
     user_id: str = Query(..., description="The ID of the Instagram user to retrieve")
 ):
