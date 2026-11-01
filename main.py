@@ -206,7 +206,7 @@ def get_attachments(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
         
-@app.get("/api/v1/attachment/download", tags=["attachments"])
+@app.get("/api/v1/attachment/download", response_model=DownloadAttachmentResponseBody, tags=["attachments"])
 def download_attachment(
     type: str = Query(..., description="The type of the attachment to download (e.g., 'image', 'video', 'audio')"),
     url: str = Query(..., description="The URL of the attachment to download")
@@ -222,7 +222,11 @@ def download_attachment(
         mime_type = headers.get("Content-Type", "application/octet-stream")
         extension = mime_type.split("/")[-1] or "bin"
         base64_data = base64.b64encode(attachment_data).decode('ascii')
-        return {"base64_data": base64_data, "mime_type": mime_type, "extension": extension}
+        return DownloadAttachmentResponseBody(
+            base64_data=base64_data,
+            mime_type=mime_type,
+            extension=extension
+        )
     except Exception as e:
         logger.exception(f"Failed to download attachment from URL: {e}")
         return HTTPException(

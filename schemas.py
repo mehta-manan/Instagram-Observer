@@ -27,3 +27,8 @@ class GetInstagramUserResponseBody(BaseModel):
     name: str
     username: str
     profile_pic: str
+    
+class DownloadAttachmentResponseBody(BaseModel):
+    base64_data: str
+    mime_type: str
+    extension: str
