@@ -221,10 +221,8 @@ def download_attachment(
         attachment_data, headers, _ = fetch(url)
         mime_type = headers.get("Content-Type", "application/octet-stream")
         extension = mime_type.split("/")[-1] or "bin"
-        
-        if type == "image":
-            base64_data = base64.b64encode(attachment_data).decode('ascii')
-            return {"base64_data": base64_data, "mime_type": mime_type, "extension": extension}
+        base64_data = base64.b64encode(attachment_data).decode('ascii')
+        return {"base64_data": base64_data, "mime_type": mime_type, "extension": extension}
     except Exception as e:
         logger.exception(f"Failed to download attachment from URL: {e}")
         return HTTPException(
