@@ -1,4 +1,5 @@
 import os
+from pydantic import json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -16,7 +17,7 @@ def fetch_instagram_user_info(user_id: str):
     }
     
     try:
-        response_data = fetch(url, params=params)
+        response_data = json.loads(fetch(url, params=params))
         return response_data
     except Exception as e:
         logger.error(f"Error fetching Instagram user info: {e}")
