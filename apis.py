@@ -1,5 +1,5 @@
 import os
-from pydantic import json
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
