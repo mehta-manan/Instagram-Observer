@@ -1,3 +1,4 @@
+import base64
 import os
 import json
 from pymongo.auth import Optional
@@ -222,7 +223,7 @@ def download_attachment(
         extension = mime_type.split("/")[-1] or "bin"
         
         if type == "image":
-            data_url = f"data:{mime_type};base64,{attachment_data.encode('base64').decode('utf-8')}"
+            data_url = f"data:{mime_type};base64,{base64.b64encode(attachment_data).decode('ascii')}"
             return {"data_url": data_url, "mime_type": mime_type, "extension": extension}
     except Exception as e:
         logger.exception(f"Failed to download attachment from URL: {e}")
