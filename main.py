@@ -222,7 +222,7 @@ def download_attachment(
         extension = mime_type.split("/")[-1] or "bin"
         
         if type == "image":
-            data_url = f"data:{mime_type};base64,{attachment_data}"
+            data_url = f"data:{mime_type};base64,{attachment_data.encode('base64').decode('utf-8')}"
             return {"data_url": data_url, "mime_type": mime_type, "extension": extension}
     except Exception as e:
         logger.exception(f"Failed to download attachment from URL: {e}")
