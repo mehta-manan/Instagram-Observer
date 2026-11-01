@@ -172,7 +172,7 @@ def get_attachments(
 
     filter_query = {"type": type}
     
-    if sender_id:
+    if sender_id and sender_id.lower() != "null":
         filter_query["sender_id"] = sender_id
 
     try:
