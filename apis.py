@@ -9,6 +9,14 @@ logger = logging.getLogger(__name__)
 from constants import INSTAGRAM_USER_FIELDS
 from http_client import fetch
 
+def fetch_image_attachment(url: str):
+    try:
+        image_data = fetch(url)
+        return image_data
+    except Exception as e:
+        logger.error(f"Error fetching image attachment: {e}")
+        raise
+
 def fetch_instagram_user_info(user_id: str):
     url = f"{os.getenv('INSTAGRAM_API_HOST')}{os.getenv('INSTAGRAM_API_VERSION')}/{user_id}"
     params = {
@@ -17,7 +25,8 @@ def fetch_instagram_user_info(user_id: str):
     }
     
     try:
-        response_data = json.loads(fetch(url, params=params).decode("utf-8"))
+        response_body, _, _ = fetch(url, params=params)
+        response_data = json.loads(response_body.decode("utf-8"))
         return response_data
     except Exception as e:
         logger.error(f"Error fetching Instagram user info: {e}")

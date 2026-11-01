@@ -1,7 +1,10 @@
 import os
+import json
 from pymongo.auth import Optional
 
 from dotenv import load_dotenv
+
+from http_client import fetch
 load_dotenv()
 
 import logging
@@ -22,7 +25,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.responses import PlainTextResponse
 
-from constants import default_response, SUPPORTED_ATTACHMENT_TYPES
+from constants import SUPPORTED_DOWNLOAD_ATTACHMENT_TYPES, default_response, SUPPORTED_ATTACHMENT_TYPES
 from schemas import *
 from models import Attachment, User
 from apis import fetch_instagram_user_info
@@ -199,5 +202,32 @@ def get_attachments(
         logger.exception(f"Failed to retrieve attachments from database: {e}")
         return HTTPException(
             detail="Failed to retrieve attachments.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+@app.get("/api/v1/attachment/download", tags=["attachments"])
+def download_attachment(
+    type: str = Query(..., description="The type of the attachment to download (e.g., 'image', 'video', 'audio')"),
+    url: str = Query(..., description="The URL of the attachment to download")
+):
+    if type not in SUPPORTED_DOWNLOAD_ATTACHMENT_TYPES:
+        return HTTPException(
+            detail="Attachment type not supported for download.",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        attachment_data, headers, _ = fetch(url)
+        attachment_data = json.loads(attachment_data.decode("utf-8"))
+        mime_type = headers.get("Content-Type", "application/octet-stream")
+        extension = mime_type.split("/")[-1] or "bin"
+        
+        if type == "image":
+            data_url = f"data:{mime_type};base64,{attachment_data[0].response}"
+            return {"data_url": data_url, "mime_type": mime_type, "extension": extension}
+    except Exception as e:
+        logger.exception(f"Failed to download attachment from URL: {e}")
+        return HTTPException(
+            detail="Failed to download attachment.",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

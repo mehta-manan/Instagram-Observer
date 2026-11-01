@@ -22,4 +22,4 @@ def fetch(
 
     with request.urlopen(req) as res:
         logger.info("HTTP %s → %s", method, url)
-        return res.read()
+        return res.read(), res.headers, res.status
