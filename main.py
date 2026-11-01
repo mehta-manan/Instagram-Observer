@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from pymongo.auth import Optional
 load_dotenv()
 
 import logging
@@ -143,6 +144,8 @@ def get_users():
 def get_attachments(
     page_num: int = Query(1, ge=1), 
     page_size: int = Query(5, ge=1),
+    # optional parameter to filter sender_id
+    sender_id: Optional[str] = Query(None, description="Filter attachments by sender ID"),
     # required parameter to filter attachments by type (...)
     type: str = Query(..., description="Filter attachments by type (e.g., 'image', 'video', 'audio')")
 ):
@@ -151,6 +154,9 @@ def get_attachments(
 
     filter_query = {"type": type}
     
+    if sender_id:
+        filter_query["sender_id"] = sender_id
+
     try:
         attachments_cursor = (
             attachment_collection
