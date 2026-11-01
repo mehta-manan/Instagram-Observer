@@ -15,3 +15,10 @@ class GetAttachmentResponseBody(BaseModel):
 class GetAttachmentsResponseBody(BaseModel):
     attachments: list[GetAttachmentResponseBody]
     total: int
+    
+class GetUserResponseBody(BaseModel):
+    id: str
+    
+class GetUsersResponseBody(BaseModel):
+    users: list[GetUserResponseBody]
+    total: int

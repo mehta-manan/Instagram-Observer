@@ -8,3 +8,6 @@ class Attachment(BaseModel):
     sender_id: str
     type: str
     url: Optional[str] = None
+    
+class User(BaseModel):
+    id: str

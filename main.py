@@ -21,11 +21,12 @@ from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.responses import PlainTextResponse
 
 from constants import default_response, SUPPORTED_ATTACHMENT_TYPES
-from schemas import InstagramWebhookRequestPayload, GetAttachmentResponseBody, GetAttachmentsResponseBody
-from models import Attachment
+from schemas import GetUserResponseBody, GetUsersResponseBody, InstagramWebhookRequestPayload, GetAttachmentResponseBody, GetAttachmentsResponseBody
+from models import Attachment, User
 
 from db import database
 attachment_collection = database["attachments"]
+user_collection = database["users"]
 
 app = FastAPI()
 
@@ -64,6 +65,19 @@ def instagram_webhook(
     if not message.get("attachments"):
         logger.info("No-attachment message received. Ignoring.")
         return default_response
+    
+    sender_id = messaging[0]["sender"]["id"]
+    logger.info(f"Message received from sender ID: {sender_id}")
+    
+    # Check if the sender is a known user in the database
+    user = user_collection.find_one({"sender_id": sender_id})
+    
+    if user:
+        logger.info(f"Known user detected. Sender ID: {sender_id}. Ignoring.")
+    else:
+        logger.info(f"New user detected. Storing sender ID: {sender_id} in the database.")
+        user = User(id=sender_id)
+        user_collection.insert_one(user.model_dump())
     
     attachments = message["attachments"]
     
@@ -107,6 +121,24 @@ def instagram_webhook(
         
     return default_response
 
+@app.get("/api/v1/users", response_model=list[GetUserResponseBody], tags=["users"])
+def get_users():
+    try:
+        users = list(user_collection.find())
+        total_users = len(users)
+        response_body = GetUsersResponseBody(
+            users=[GetUserResponseBody(**user) for user in users],
+            total=total_users
+        )
+        
+        return response_body        
+    except Exception as e:
+        logger.exception(f"Failed to retrieve users from database: {e}")
+        return HTTPException(
+            detail="Failed to retrieve users.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
 @app.get("/api/v1/attachments", response_model=GetAttachmentsResponseBody, tags=["attachments"])
 def get_attachments(
     page_num: int = Query(1, ge=1), 
