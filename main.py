@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 from pymongo.auth import Optional
+
+from dotenv import load_dotenv
 load_dotenv()
 
 import logging
@@ -22,8 +23,9 @@ from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.responses import PlainTextResponse
 
 from constants import default_response, SUPPORTED_ATTACHMENT_TYPES
-from schemas import GetUserResponseBody, GetUsersResponseBody, InstagramWebhookRequestPayload, GetAttachmentResponseBody, GetAttachmentsResponseBody
+from schemas import *
 from models import Attachment, User
+from apis import fetch_instagram_user_info
 
 from db import database
 attachment_collection = database["attachments"]
@@ -137,6 +139,22 @@ def get_users():
         logger.exception(f"Failed to retrieve users from database: {e}")
         return HTTPException(
             detail="Failed to retrieve users.",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+@app.get("/api/v1/instgram-user", response_model=GetInstagramUserResponseBody, tags=["instagram-users"])
+def get_instagram_user(
+    user_id: str = Query(..., description="The ID of the Instagram user to retrieve")
+):
+    try:
+        ig_user = fetch_instagram_user_info(user_id)
+        response_body = GetInstagramUserResponseBody(**ig_user)
+        return response_body
+        
+    except Exception as e:
+        logger.exception(f"Failed to retrieve Instagram user from API: {e}")
+        return HTTPException(
+            detail="Failed to retrieve Instagram user.",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
         

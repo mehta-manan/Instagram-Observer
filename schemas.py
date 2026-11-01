@@ -22,3 +22,8 @@ class GetUserResponseBody(BaseModel):
 class GetUsersResponseBody(BaseModel):
     users: list[GetUserResponseBody]
     total: int
+    
+class GetInstagramUserResponseBody(BaseModel):
+    name: str
+    username: str
+    profile_pic: str
