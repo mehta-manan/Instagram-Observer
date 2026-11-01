@@ -121,7 +121,7 @@ def instagram_webhook(
         
     return default_response
 
-@app.get("/api/v1/users", response_model=list[GetUserResponseBody], tags=["users"])
+@app.get("/api/v1/users", response_model=GetUsersResponseBody, tags=["users"])
 def get_users():
     try:
         users = list(user_collection.find())
