@@ -1,7 +1,5 @@
 import base64
 import os
-import json
-from pymongo.auth import Optional
 
 from dotenv import load_dotenv
 
@@ -167,7 +165,7 @@ def get_attachments(
     page_num: int = Query(1, ge=1), 
     page_size: int = Query(5, ge=1),
     # optional parameter to filter sender_id
-    sender_id: Optional[str] = Query(None, description="Filter attachments by sender ID"),
+    sender_id: str | None = Query(None, description="Filter attachments by sender ID"),
     # required parameter to filter attachments by type (...)
     type: str = Query(..., description="Filter attachments by type (e.g., 'image', 'video', 'audio')")
 ):
